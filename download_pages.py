@@ -29,7 +29,6 @@ def change_locations():
     os.system("hotspotshield disconnect")
     location = locations[random.randrange(len(locations))]
     print(location)
-    sleep(5)
     os.system("hotspotshield connect " + location)
 
 
@@ -41,17 +40,18 @@ if __name__ == "__main__":
             change_locations()
             print("end changing location")
         try:
-            sleep(random.randint(1, 3))
+            sleep(random.uniform(1, 3))
             r = requests.get('https://www.lacentrale.fr/listing?makesModelsCommercialNames=&options=&page=' + str(n) + '&regions=FR-IDF', headers=headers[random.randrange(5)])
             soup = BeautifulSoup(r.text, features='html.parser')
             anchors = soup.find_all('a', class_='searchCard__link')
             cnt = 0
             print("success on first link")
             print(n)
-            for anchor in anchors:
-                print(anchor['href'])
-                cnt += 1
-                try:
+            try:
+                for anchor in anchors:
+                    print(anchor['href'])
+                    cnt += 1
+                    sleep(random.uniform(1, 3))
                     response = urllib.request.urlopen("https://www.lacentrale.fr" + anchor['href'])
                     webContent = response.read()
                     f = open('./data' + anchor['href'], 'wb')
@@ -59,9 +59,12 @@ if __name__ == "__main__":
                     f.close
                     print("success on second link")
                     print(cnt)
-                except:
-                    print("failed on second link")
-                    print(cnt)
+
+            except:
+                print("anchors")
+                print(anchors)
+                print("failed on second link")
+                print(cnt)
 
         except:
             print("failed on first link")
