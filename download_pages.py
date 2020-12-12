@@ -34,8 +34,8 @@ def change_locations():
 
 if __name__ == "__main__":
     links = []
-    for n in range(1, 3902):
-        if not (n % 10):
+    for n in range(1, 5):
+        if not (n % 2):
             print("start changing location")
             change_locations()
             print("end changing location")
