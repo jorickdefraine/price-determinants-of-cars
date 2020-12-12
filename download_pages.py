@@ -112,7 +112,7 @@ if __name__ == "__main__":
         if not (n % 5):
             print("start changing location")
             change_locations()
-            sleep(3)
+            sleep(5)
             print("end changing location")
         try:
             sleep(random.uniform(1, 3))
