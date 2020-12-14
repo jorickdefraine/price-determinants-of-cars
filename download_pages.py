@@ -108,12 +108,15 @@ def scrap_subcar_requests(url):
 
 if __name__ == "__main__":
     results = []
-    for n in range(1, 15):
+    for n in range(1394, 3902):
         if not (n % 5):
             print("start changing location")
             change_locations()
             sleep(5)
             print("end changing location")
+            df = pd.DataFrame(results)
+            df.to_csv('Cars_DB1394.csv', mode='a')
+
         try:
             sleep(random.uniform(1, 3))
             r = requests.get('https://www.lacentrale.fr/listing?makesModelsCommercialNames=&options=&page=' + str(
