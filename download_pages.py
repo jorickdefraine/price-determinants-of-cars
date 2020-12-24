@@ -6,6 +6,8 @@ import urllib.request
 import random
 from lxml import html
 import pandas as pd
+from datetime import datetime
+import csv
 
 headers = [{
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'},
@@ -24,8 +26,6 @@ locations = ["AR", "DZ", "AM", "AU", "AUADL", "AUBNE", "AUMEL", "AUPER", "AUSYD"
              "ESBCN", "SE", "SK", "ZA", "CH", "TH", "TR", "TW", "UA", "US", "USATL", "USBOS", "USCLT", "USCHI", "USCOL",
              "USDAL", "USHOU", "USIND", "USMCI", "USLAS", "USLAX", "USMIA", "USEWR", "USNYC", "USORD", "USPHL", "USPHX",
              "USPDX", "USSFO", "USSJC", "USSEA", "USWAS", "UY", "AE", "GB", "GBCVT", "VE", "VN"]
-print(headers[random.randrange(5)])
-
 
 def change_locations():
     os.system("hotspotshield disconnect")
@@ -39,6 +39,7 @@ def change_locations():
 def scrap_subcar_requests(url):
     req = requests.get(url, headers=headers[random.randrange(5)])
     doc = html.fromstring(req.text)
+    soup = BeautifulSoup(req.text, features='html.parser')
 
     try:
         name = doc.xpath('/html/body/section/section[1]/div[3]/div/div/div[1]')[0].text_content().replace('\n', '')
@@ -97,28 +98,29 @@ def scrap_subcar_requests(url):
     except:
         Emission_CO2 = 'NAN'
 
+    department = soup.find_all('div', class_='cbm-outlet__information--title')[0].text[-5:].replace("(","").replace(")","")
+
     result = {'nom': name, 'model': model, 'price': Prix, 'Mise_en_circluation': Mise_en_circluation,
               'Kilométrage_compteur': Kilométrage_compteur, 'Energie': Energie, 'Boite_de_vitesse': Boite_de_vitesse,
               'Nombre_de_porte': Nombre_de_porte, 'Nombre_de_place': Nombre_de_place,
               'Puissance_fiscale': Puissance_fiscale, 'Puissance_din': Puissance_din,
-              'Consommation_mixte': Consommation_mixte, 'Emission_CO2': Emission_CO2}
+              'Consommation_mixte': Consommation_mixte, 'Emission_CO2': Emission_CO2, 'URL': url, 'DATETIME': datetime.now().strftime("%d/%m/%Y, %H:%M:%S"), "department": department}
 
     return result
 
 
 if __name__ == "__main__":
     results = []
-    for n in range(1394, 3902):
+    for n in range(1, 11):
         if not (n % 5):
             print("start changing location")
             change_locations()
-            sleep(5)
+            sleep(4)
             print("end changing location")
-            df = pd.DataFrame(results)
-            df.to_csv('Cars_DB1394.csv', mode='a')
+
 
         try:
-            sleep(random.uniform(1, 3))
+            sleep(random.uniform(0, 1))
             r = requests.get('https://www.lacentrale.fr/listing?makesModelsCommercialNames=&options=&page=' + str(
                 n) + '&regions=FR-IDF', headers=headers[random.randrange(5)])
             soup = BeautifulSoup(r.text, features='html.parser')
@@ -130,16 +132,14 @@ if __name__ == "__main__":
                 for anchor in anchors:
                     print(anchor['href'])
                     cnt += 1
-                    sleep(random.uniform(1, 3))
+                    sleep(random.uniform(0, 1))
                     r = scrap_subcar_requests("https://www.lacentrale.fr" + anchor['href'])
                     results.append(r)
-                    #response = urllib.request.urlopen("https://www.lacentrale.fr" + anchor['href'])
-                    #webContent = response.read()
-                    #f = open('./data' + anchor['href'], 'wb')
-                    #f.write(webContent)
-                    #f.close
+                    df = pd.DataFrame(results)
+                    df.to_csv('Cars_DB.csv', mode='w')
                     print("success on second link")
                     print(cnt)
+
 
             except:
                 print("anchors")
@@ -151,5 +151,4 @@ if __name__ == "__main__":
             print("failed on first link")
             print(n)
 
-    df = pd.DataFrame(results)
-    df.to_csv('Cars_DB.csv', mode='a')
+
