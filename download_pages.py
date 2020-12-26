@@ -105,6 +105,9 @@ def scrap_subcar_requests(url):
     number_photos = len(
         json.loads(soup.find_all('div', class_="cbm-mainColumn")[0].find_all('div', {"id": "cbm-carousel"})[0].text)[
             "slides"])
+    number_options = soup.find_all('section', class_='cbm-moduleEquip')[0].find("h2", class_="titleSection").text[:3]
+    name_seller = soup.find_all('h3', class_='cbm-sellerName__Name')[0].text
+    type_seller = soup.find_all('ul', class_='cbm-sellerInfos cbm-list--2')[0].find_all("span")[2].text
 
     result = {'nom': name, 'model': model, 'price': Prix, 'Mise_en_circluation': Mise_en_circluation,
               'Kilométrage_compteur': Kilométrage_compteur, 'Energie': Energie, 'Boite_de_vitesse': Boite_de_vitesse,
@@ -113,7 +116,8 @@ def scrap_subcar_requests(url):
               'Consommation_mixte': Consommation_mixte,
               'Emission_CO2': Emission_CO2, 'URL': url,
               'DATETIME': datetime.now().strftime("%d/%m/%Y, %H:%M:%S"),
-              "department": department, "post_time": post_time, "number_photos": number_photos}
+              "department": department, "post_time": post_time, "number_photos": number_photos,
+              "number_options": number_options, "name_seller": name_seller, "type_seller": type_seller}
 
     return result
 
@@ -126,7 +130,6 @@ if __name__ == "__main__":
             change_locations()
             sleep(4)
             print("end changing location")
-
 
         try:
             sleep(random.uniform(0, 1))
@@ -148,7 +151,6 @@ if __name__ == "__main__":
                     df.to_csv('Cars_DB.csv', mode='w')
                     print("success on second link")
                     print(cnt)
-
 
             except:
                 print("anchors")
