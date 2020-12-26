@@ -8,6 +8,7 @@ from lxml import html
 import pandas as pd
 from datetime import datetime
 import csv
+import json
 
 headers = [{
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'},
@@ -98,13 +99,21 @@ def scrap_subcar_requests(url):
     except:
         Emission_CO2 = 'NAN'
 
-    department = soup.find_all('div', class_='cbm-outlet__information--title')[0].text[-5:].replace("(","").replace(")","")
+    department = soup.find_all('div', class_='cbm-outlet__information--title')[0].text[-5:].replace("(", "").replace(
+        ")", "")
+    post_time = soup.find_all('div', class_='cbm-toolboxButtons')[0].find_all('span')[0].text
+    number_photos = len(
+        json.loads(soup.find_all('div', class_="cbm-mainColumn")[0].find_all('div', {"id": "cbm-carousel"})[0].text)[
+            "slides"])
 
     result = {'nom': name, 'model': model, 'price': Prix, 'Mise_en_circluation': Mise_en_circluation,
               'Kilométrage_compteur': Kilométrage_compteur, 'Energie': Energie, 'Boite_de_vitesse': Boite_de_vitesse,
               'Nombre_de_porte': Nombre_de_porte, 'Nombre_de_place': Nombre_de_place,
               'Puissance_fiscale': Puissance_fiscale, 'Puissance_din': Puissance_din,
-              'Consommation_mixte': Consommation_mixte, 'Emission_CO2': Emission_CO2, 'URL': url, 'DATETIME': datetime.now().strftime("%d/%m/%Y, %H:%M:%S"), "department": department}
+              'Consommation_mixte': Consommation_mixte,
+              'Emission_CO2': Emission_CO2, 'URL': url,
+              'DATETIME': datetime.now().strftime("%d/%m/%Y, %H:%M:%S"),
+              "department": department, "post_time": post_time, "number_photos": number_photos}
 
     return result
 
